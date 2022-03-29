@@ -136,8 +136,6 @@ PlayerSettings:
     Others: 1
   bundleVersion: 0.1
   preloadedAssets:
-  - {fileID: -477389838916915802, guid: 18581e28d7fb63a46b522fad273c18d4, type: 2}
-  - {fileID: 4800000, guid: e7c77f6eaab324a819efdc13b8125a39, type: 3}
   - {fileID: 11400000, guid: 523fc8f15e3a9524a807ba4bb733751c, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -548,7 +546,7 @@ PlayerSettings:
   logObjCUncaughtExceptions: 1
   enableCrashReportAPI: 0
   cameraUsageDescription: ARKit GPS Test
-  locationUsageDescription: 
+  locationUsageDescription: GF Require
   microphoneUsageDescription: 
   bluetoothUsageDescription: 
   switchNMETAOverride: 

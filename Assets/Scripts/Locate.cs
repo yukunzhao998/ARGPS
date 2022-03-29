@@ -17,7 +17,8 @@ public class Locate : MonoBehaviour
     public float angleToNorth;
     public float bearing;
     public float dist;
-    //public float _deltaAngle;
+    public float delta_angle;
+    public float delta_dist;
     public float rotation_degree;
 
     private float previous_dist = 0.0f;
@@ -36,12 +37,13 @@ public class Locate : MonoBehaviour
     }
 
     private float getBearing(Vector3 loc_a, Vector3 loc_b){ //input: the GPS location of device and target
-        float lon_a = loc_a.y * Mathf.Deg2Rad;
         float lat_a = loc_a.x * Mathf.Deg2Rad;
-        float lon_b = loc_b.y * Mathf.Deg2Rad;
+        float lon_a = loc_a.y * Mathf.Deg2Rad;
         float lat_b = loc_b.x * Mathf.Deg2Rad;
-        float x = (Mathf.Abs(lon_a - lon_b)) % PI;
-        float y = Mathf.Log(Mathf.Tan(lat_b/2+PI/4) / Mathf.Tan(lat_a/2+PI/4));
+        float lon_b = loc_b.y * Mathf.Deg2Rad;
+        
+        float x = Mathf.Sin(lon_b-lon_a) * Mathf.Cos(lat_b);
+        float y = Mathf.Cos(lat_a)*Mathf.Sin(lat_b) - Mathf.Sin(lat_a)*Mathf.Cos(lat_b)*Mathf.Cos(lon_b-lon_a);
         float bearing = Mathf.Atan2(x,y) * Mathf.Rad2Deg;     //bearing in the form of degree
         return bearing;
     }
@@ -74,20 +76,18 @@ public class Locate : MonoBehaviour
         bearing = getBearing(gps_device, gps_target);
         //Debug.Log("bearing: "+bearing.ToString());
         dist = getDistance(gps_device, gps_target);
+        //dist = 2;  unline this to check only the bearing
         //Debug.Log("distance: "+ dist.ToString());
-        rotation_degree = (bearing + angleToNorth) % 360;
+        rotation_degree = (bearing - angleToNorth) % 360;
 
         //first rotate GameObject, then translate cube
-        //1. GameObject rotation for once
-        float delta_angle = (rotation_degree - previous_angles) % 360;
-        previous_angles = rotation_degree;
-        _gameObject.transform.Rotate(0.0f, delta_angle, 0.0f, Space.World);
+        //1. GameObject rotation
+        delta_angle = (rotation_degree - previous_angles) % 360;
         
-        //2. cube translation operation run on every update
-        float delta_dist = dist - previous_dist;
-        previous_dist = dist;
+        //2. cube translation
+        delta_dist = dist - previous_dist;
         
-        _cube.transform.Translate(0.0f, 0.0f, -delta_dist, Space.Self);
+        //another way of translation, but in world space
         //Vector3 cube_pos = _cube.transform.position;
         //cube_pos.z += delta_dist;
         //_cube.transform.position = cube_pos;
@@ -97,6 +97,11 @@ public class Locate : MonoBehaviour
     void TaskOnClick()
     {
         _gameObject.SetActive(true);
+        
+        _gameObject.transform.Rotate(0.0f, delta_angle, 0.0f, Space.World);
+        previous_angles = rotation_degree;
+        _cube.transform.Translate(0.0f, 0.0f, delta_dist, Space.Self);
+        previous_dist = dist;
         //_gameObject.transform.eulerAngles= new Vector3(0, -_deltaAngle, 0);
     }
     

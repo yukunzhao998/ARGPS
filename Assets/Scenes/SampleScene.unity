@@ -628,6 +628,8 @@ MonoBehaviour:
   angleToNorth: 0
   bearing: 0
   dist: 0
+  delta_angle: 0
+  delta_dist: 0
   rotation_degree: 0
 --- !u!1 &854905462
 GameObject:
@@ -1109,6 +1111,8 @@ MonoBehaviour:
   angleToNorth: 0
   bearing: 0
   dist: 0
+  delta_angle: 0
+  delta_dist: 0
   rotation_degree: 0
 --- !u!114 &1968989702
 MonoBehaviour:
