@@ -9,7 +9,7 @@ public class GetGPS : MonoBehaviour
 
     void Start()
     {
-        Input.location.Start(10.0f, 10.0f);
+        Input.location.Start(1.0f, 1.0f);
         
         //Latituded, Longtitude, Height
         //hardcode the gps of target here
