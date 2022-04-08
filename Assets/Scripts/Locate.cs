@@ -1,63 +1,65 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DoubleComputation;
 
 public class Locate : MonoBehaviour
 {
-    public const float PI = 3.1415926f;
+    //public const double PI = 3.14159265358979;
     public Text _log;
     public Button _button;
     public Camera _camera;
     public GameObject _gameObject;
     public GameObject _cube;
 
-    public Vector3 gps_device;
-    public Vector3 gps_target;
-    public float angleToNorth;
-    public float bearing;
-    public float dist;
-    public float delta_angle;
-    public float delta_dist;
-    public float rotation_degree;
+    public Vector3d gps_device;
+    public Vector3d gps_target;
+    public double angleToNorth;
+    public double bearing;
+    public double dist;
+    public double delta_angle;
+    public double delta_dist;
+    public double rotation_degree;
 
-    private float previous_dist = 0.0f;
-    private float previous_angles = 0.0f;
+    private double previous_dist = 0.0;
+    private double previous_angles = 0.0;
 
-    public void setDevice(Vector3 gps_location){
+    public void setDevice(Vector3d gps_location){
         gps_device = gps_location;
     }
 
-    public void setTarget(Vector3 gps_location){
+    public void setTarget(Vector3d gps_location){
         gps_target = gps_location;
     }
 
-    public void setAngleToNorth(float angle){
+    public void setAngleToNorth(double angle){
         angleToNorth = angle;
     }
 
-    private float getBearing(Vector3 loc_a, Vector3 loc_b){ //input: the GPS location of device and target
-        float lat_a = loc_a.x * Mathf.Deg2Rad;
-        float lon_a = loc_a.y * Mathf.Deg2Rad;
-        float lat_b = loc_b.x * Mathf.Deg2Rad;
-        float lon_b = loc_b.y * Mathf.Deg2Rad;
+    private double getBearing(Vector3d loc_a, Vector3d loc_b){ //input: the GPS location of device and target
+        double lat_a = loc_a.x * Mathd.Deg2Rad;
+        double lon_a = loc_a.y * Mathd.Deg2Rad;
+        double lat_b = loc_b.x * Mathd.Deg2Rad;
+        double lon_b = loc_b.y * Mathd.Deg2Rad;
         
-        float x = Mathf.Sin(lon_b-lon_a) * Mathf.Cos(lat_b);
-        float y = Mathf.Cos(lat_a)*Mathf.Sin(lat_b) - Mathf.Sin(lat_a)*Mathf.Cos(lat_b)*Mathf.Cos(lon_b-lon_a);
-        float bearing = Mathf.Atan2(x,y) * Mathf.Rad2Deg;     //bearing in the form of degree
+        double x = Math.Sin(lon_b-lon_a) * Math.Cos(lat_b);
+        double y = Math.Cos(lat_a)*Math.Sin(lat_b) - Math.Sin(lat_a)*Math.Cos(lat_b)*Math.Cos(lon_b-lon_a);
+        double bearing = Math.Atan2(x,y) * Mathd.Rad2Deg;     //bearing in the form of degree
         return bearing;
     }
 
-    private float getDistance(Vector3 loc_a, Vector3 loc_b){
-        const float EARTH_RADIUS = 6378.137f;
-        float lon_a = loc_a.y * Mathf.Deg2Rad;
-        float lat_a = loc_a.x * Mathf.Deg2Rad;
-        float lon_b = loc_b.y * Mathf.Deg2Rad;
-        float lat_b = loc_b.x * Mathf.Deg2Rad;
-        float x = Mathf.Sin((lat_a - lat_b)/2.0f);
-        float y = Mathf.Sin((lon_a - lon_b)/2.0f);
+    private double getDistance(Vector3d loc_a, Vector3d loc_b){
+        const double EARTH_RADIUS = 6378.137;
+        double lon_a = loc_a.y * Mathd.Deg2Rad;
+        double lat_a = loc_a.x * Mathd.Deg2Rad;
+        double lon_b = loc_b.y * Mathd.Deg2Rad;
+        double lat_b = loc_b.x * Mathd.Deg2Rad;
+        double x = Math.Sin((lat_a - lat_b)/2.0);
+        double y = Math.Sin((lon_a - lon_b)/2.0);
 
-        float dist = EARTH_RADIUS * 1000 * 2 *Mathf.Asin(Mathf.Sqrt( x*x + Mathf.Cos(lat_a)*Mathf.Cos(lat_b)*y*y));
+        double dist = EARTH_RADIUS * 1000 * 2 *Math.Asin(Math.Sqrt(x*x + Math.Cos(lat_a)*Math.Cos(lat_b)*y*y));
         //float dist = EARTH_RADIUS * 1000 * Mathf.Acos(Mathf.Sin(lat_a)*Mathf.Sin(lat_b) + Mathf.Cos(lat_a)*Mathf.Cos(lat_b)*Mathf.Cos(lon_a-lon_b));
         return dist;
     }
@@ -72,11 +74,11 @@ public class Locate : MonoBehaviour
     private void Update()
     {   
         _log.text = "angle to north: "+angleToNorth.ToString()+"\n";
-        
+        _log.text += "latitude: "+gps_device.x.ToString()+" lontitude: "+gps_device.y.ToString()+"\n";
         bearing = getBearing(gps_device, gps_target);
         //Debug.Log("bearing: "+bearing.ToString());
         dist = getDistance(gps_device, gps_target);
-        //dist = 2;  unline this to check only the bearing
+        //dist = 2;  //unline this to check only the bearing
         //Debug.Log("distance: "+ dist.ToString());
         rotation_degree = (bearing - angleToNorth) % 360;
 
@@ -98,9 +100,9 @@ public class Locate : MonoBehaviour
     {
         _gameObject.SetActive(true);
         
-        _gameObject.transform.Rotate(0.0f, delta_angle, 0.0f, Space.World);
+        _gameObject.transform.Rotate(0.0f, (float)delta_angle, 0.0f, Space.World);
         previous_angles = rotation_degree;
-        _cube.transform.Translate(0.0f, 0.0f, delta_dist, Space.Self);
+        _cube.transform.Translate(0.0f, 0.0f, (float)delta_dist, Space.Self);
         previous_dist = dist;
         //_gameObject.transform.eulerAngles= new Vector3(0, -_deltaAngle, 0);
     }

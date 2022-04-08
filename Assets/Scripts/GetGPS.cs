@@ -1,19 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DoubleComputation;
 
 public class GetGPS : MonoBehaviour
 {
-    public Vector3 gps_device;
-    public Vector3 gps_target;
+    bool locationIsReady = false;
+    bool locationGrantedAndroid = false;
+    
+    public Vector3d gps_device;
+    public Vector3d gps_target;
 
     void Start()
     {
-        Input.location.Start(1.0f, 1.0f);
-        
+        #if PLATFORM_ANDROID
+        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        {
+            Permission.RequestUserPermission(Permission.FineLocation);
+            //dialog = new GameObject();
+        }
+        else
+        {
+            locationGrantedAndroid = true;
+            locationIsReady = NativeGPSPlugin.StartLocation();
+        }
+
+        #elif PLATFORM_IOS
+
+        locationIsReady = NativeGPSPlugin.StartLocation();
+    
+        #endif
+
         //Latituded, Longtitude, Height
         //hardcode the gps of target here
-        gps_target = new Vector3(22.33765f, 114.2631f, 143.434f);
+        gps_target = new Vector3d(22.3375686491116, 114.26298698421, 120.763366699219);
         
     }
 
@@ -22,7 +42,8 @@ public class GetGPS : MonoBehaviour
     {
         //update every frame for gps of your device
         //the gps of device changges dynamically
-        gps_device = new Vector3(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.altitude);
+        gps_device = new Vector3d(NativeGPSPlugin.GetLatitude(), NativeGPSPlugin.GetLongitude(), NativeGPSPlugin.GetAltitude());
+        //gps_device = new Vector3d(22.3375, 114.2629);    //for simple test
         //BroadcastMessage("setDevice", gps_device);    // send to child scripts
         GameObject.Find("GameObject_1").GetComponent<Locate>().SendMessage("setDevice", gps_device);
         GameObject.Find("GameObject_1").GetComponent<Locate>().SendMessage("setTarget", gps_target);

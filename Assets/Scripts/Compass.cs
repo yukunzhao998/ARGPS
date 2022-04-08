@@ -25,7 +25,7 @@ public class Compass : MonoBehaviour
         // We now have the angle of the camera to the north as transform.eulerAngles.y
 
         angleToNorth = transform.eulerAngles.y;
-        GameObject.Find("GameObject_1").GetComponent<Locate>().SendMessage("setAngleToNorth", angleToNorth);
+        GameObject.Find("GameObject_1").GetComponent<Locate>().SendMessage("setAngleToNorth", (double)angleToNorth);
 
         //float deltaAngle2 = Mathf.DeltaAngle(_camera.transform.eulerAngles.y, transform.eulerAngles.y);//%_target.transform.eulerAngles.y);
         transform.eulerAngles = previousAngles;
