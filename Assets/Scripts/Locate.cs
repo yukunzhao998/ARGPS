@@ -3,16 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.ARFoundation;
 using DoubleComputation;
 
 public class Locate : MonoBehaviour
 {
-    //public const double PI = 3.14159265358979;
     public Text _log;
     public Button _button;
     public Camera _camera;
     public GameObject _gameObject;
     public GameObject _cube;
+    public ARSessionOrigin arSessionOrigin;
 
     public Vector3d gps_device;
     public Vector3d gps_target;
@@ -68,7 +69,6 @@ public class Locate : MonoBehaviour
     {
         _button.onClick.AddListener(TaskOnClick);
         _gameObject.SetActive(false);
-        
     }
 
     private void Update()
@@ -79,8 +79,12 @@ public class Locate : MonoBehaviour
         //Debug.Log("bearing: "+bearing.ToString());
         dist = getDistance(gps_device, gps_target);
         //dist = 2;  //unline this to check only the bearing
-        //Debug.Log("distance: "+ dist.ToString());
+        _log.text += "distance: "+ dist.ToString()+"\n";
         rotation_degree = (bearing - angleToNorth) % 360;
+        if (rotation_degree < 0){
+            rotation_degree += 360;
+        }
+        _log.text += "rotation degree: "+ rotation_degree.ToString() + "\n";
 
         //first rotate GameObject, then translate cube
         //1. GameObject rotation
@@ -104,6 +108,10 @@ public class Locate : MonoBehaviour
         previous_angles = rotation_degree;
         _cube.transform.Translate(0.0f, 0.0f, (float)delta_dist, Space.Self);
         previous_dist = dist;
+        Vector3 origin_position = new Vector3(0.0f, 0.0f, 0.0f);
+        Quaternion origin_rotation = Quaternion.Euler(0,0,0);
+        arSessionOrigin.transform.position = origin_position;
+        arSessionOrigin.transform.rotation = origin_rotation;
         //_gameObject.transform.eulerAngles= new Vector3(0, -_deltaAngle, 0);
     }
     

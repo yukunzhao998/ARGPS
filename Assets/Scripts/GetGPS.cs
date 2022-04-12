@@ -33,7 +33,7 @@ public class GetGPS : MonoBehaviour
 
         //Latituded, Longtitude, Height
         //hardcode the gps of target here
-        gps_target = new Vector3d(22.3375686491116, 114.26298698421, 120.763366699219);
+        gps_target = new Vector3d(22.337750368767, 114.2630499323, 126);
         
     }
 

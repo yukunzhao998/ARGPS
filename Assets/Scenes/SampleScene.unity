@@ -439,7 +439,7 @@ Transform:
   m_GameObject: {fileID: 358023742}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.481}
-  m_LocalScale: {x: 4, y: 4, z: 0.4}
+  m_LocalScale: {x: 16, y: 16, z: 1.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1151269939}
@@ -623,6 +623,7 @@ MonoBehaviour:
   _camera: {fileID: 1114040581}
   _gameObject: {fileID: 1968989698}
   _cube: {fileID: 1151269938}
+  arSessionOrigin: {fileID: 40919615}
   angleToNorth: 0
   bearing: 0
   dist: 0
@@ -1104,6 +1105,7 @@ MonoBehaviour:
   _camera: {fileID: 0}
   _gameObject: {fileID: 0}
   _cube: {fileID: 0}
+  arSessionOrigin: {fileID: 0}
   angleToNorth: 0
   bearing: 0
   dist: 0
