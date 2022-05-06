@@ -9,23 +9,36 @@ using DoubleComputation;
 public class Locate : MonoBehaviour
 {
     public Text _log;
-    public Button _button;
+    public Button _buttonFrame;
+    public Button _buttonFrameHide;
+    public Button _buttonClick;
+    public Button _buttonClickHide;
     public Camera _camera;
-    public GameObject _gameObject;
-    public GameObject _cube;
+    public GameObject _gameObject1;
+    public GameObject _gameObject2;
+    public GameObject _tiger1;  //fixed for each click
+    public GameObject _tiger2;  //every frame update
     public ARSessionOrigin arSessionOrigin;
 
     public Vector3d gps_device;
     public Vector3d gps_target;
+    public float gps_accuracy;
     public double angleToNorth;
     public double bearing;
     public double dist;
-    public double delta_angle;
-    public double delta_dist;
-    public double rotation_degree;
 
-    private double previous_dist = 0.0;
-    private double previous_angles = 0.0;
+    private double delta_angle1; //1 for tiger1, 2 for tiger 2
+    private double delta_dist1;
+    private double delta_angle2;
+    private double delta_dist2;
+    private double rotation_degree;
+    private double previous_dist1 = 0.0;
+    private double previous_angles1 = 0.0;
+    private double previous_dist2 = 0.0;
+    private double previous_angles2 = 0.0;
+    private Vector3 origin_position = new Vector3(0.0f, 0.0f, 0.0f);
+    private Quaternion origin_rotation = Quaternion.Euler(0,0,0);
+    private bool model2_appear = false;
 
     public void setDevice(Vector3d gps_location){
         gps_device = gps_location;
@@ -37,6 +50,10 @@ public class Locate : MonoBehaviour
 
     public void setAngleToNorth(double angle){
         angleToNorth = angle;
+    }
+
+    public void setGPSAccuracy(float accuracy){
+        gps_accuracy = accuracy;
     }
 
     private double getBearing(Vector3d loc_a, Vector3d loc_b){ //input: the GPS location of device and target
@@ -67,18 +84,24 @@ public class Locate : MonoBehaviour
 
     private void Start()
     {
-        _button.onClick.AddListener(TaskOnClick);
-        _gameObject.SetActive(false);
+        _buttonClick.onClick.AddListener(TaskOnClick);
+        _buttonClickHide.onClick.AddListener(TaskOnClickHide);
+        _buttonFrame.onClick.AddListener(TaskFrame);
+        _buttonFrameHide.onClick.AddListener(TaskFrameHide);
+
+        _gameObject1.SetActive(false);
+        _gameObject2.SetActive(false);
     }
 
     private void Update()
     {   
-        _log.text = "angle to north: "+angleToNorth.ToString()+"\n";
+        _log.text = "Some intermediate variables: "+"\n";
+        _log.text += "angle to north: "+angleToNorth.ToString()+"\n";
         _log.text += "latitude: "+gps_device.x.ToString()+" lontitude: "+gps_device.y.ToString()+"\n";
+        _log.text += "accrracy: "+gps_accuracy.ToString()+"\n";
         bearing = getBearing(gps_device, gps_target);
         //Debug.Log("bearing: "+bearing.ToString());
         dist = getDistance(gps_device, gps_target);
-        //dist = 2;  //unline this to check only the bearing
         _log.text += "distance: "+ dist.ToString()+"\n";
         rotation_degree = (bearing - angleToNorth) % 360;
         if (rotation_degree < 0){
@@ -86,13 +109,28 @@ public class Locate : MonoBehaviour
         }
         _log.text += "rotation degree: "+ rotation_degree.ToString() + "\n";
 
-        //first rotate GameObject, then translate cube
+        //first rotate GameObject, then translate (for tiger 1)
         //1. GameObject rotation
-        delta_angle = (rotation_degree - previous_angles) % 360;
-        
+        delta_angle1 = (rotation_degree - previous_angles1) % 360;
         //2. cube translation
-        delta_dist = dist - previous_dist;
+        delta_dist1 = dist - previous_dist1;
         
+        //for tiger 2
+        delta_angle2 = (rotation_degree - previous_angles2) % 360;
+        delta_dist2 = dist - previous_dist2;
+        
+        _gameObject2.SetActive(true);
+        if(model2_appear == false){
+            _tiger2.GetComponent<Renderer>().enabled = false;
+        }
+        else{
+            _tiger2.GetComponent<Renderer>().enabled = true;
+        }
+        _gameObject2.transform.Rotate(0.0f, (float)delta_angle2, 0.0f, Space.World);
+        previous_angles2 = rotation_degree;
+        _tiger2.transform.Translate(0.0f, 0.0f, (float)delta_dist2, Space.Self);
+        previous_dist2 = dist;
+
         //another way of translation, but in world space
         //Vector3 cube_pos = _cube.transform.position;
         //cube_pos.z += delta_dist;
@@ -102,17 +140,37 @@ public class Locate : MonoBehaviour
 
     void TaskOnClick()
     {
-        _gameObject.SetActive(true);
-        
-        _gameObject.transform.Rotate(0.0f, (float)delta_angle, 0.0f, Space.World);
-        previous_angles = rotation_degree;
-        _cube.transform.Translate(0.0f, 0.0f, (float)delta_dist, Space.Self);
-        previous_dist = dist;
-        Vector3 origin_position = new Vector3(0.0f, 0.0f, 0.0f);
-        Quaternion origin_rotation = Quaternion.Euler(0,0,0);
+        _gameObject1.SetActive(true);
+        if(dist == 0.0){
+            _tiger1.GetComponent<Renderer>().enabled = false;
+        }
+        else{
+            _tiger1.GetComponent<Renderer>().enabled = true;
+        }
+
+        _gameObject1.transform.Rotate(0.0f, (float)delta_angle1, 0.0f, Space.World);
+        previous_angles1 = rotation_degree;
+        _tiger1.transform.Translate(0.0f, 0.0f, (float)delta_dist1, Space.Self);
+        previous_dist1 = dist;
+
         arSessionOrigin.transform.position = origin_position;
         arSessionOrigin.transform.rotation = origin_rotation;
-        //_gameObject.transform.eulerAngles= new Vector3(0, -_deltaAngle, 0);
+    }
+
+    void TaskOnClickHide()
+    {
+        _tiger1.GetComponent<Renderer>().enabled = false;
     }
     
+    void TaskFrame()
+    {
+        model2_appear = true;
+        //translation and rotation done in update()
+        
+    }
+
+    void TaskFrameHide()
+    {
+        model2_appear = false;
+    }
 }
