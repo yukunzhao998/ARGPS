@@ -129,7 +129,7 @@ public class Locate : MonoBehaviour
             _gameObject1.transform.rotation = Quaternion.Euler(0, (float)rotation_degree, 0);
             double delta_dist = dist - tigers[model_num].transform.position.z;
             tigers[model_num].transform.Translate(0.0f, 0.0f, (float)delta_dist, Space.Self);
-            tigers[model_num].transform.Rotate((float)angleToNorth, (float)angleToNorth, (float)angleToNorth);
+            tigers[model_num].transform.Rotate(0, -(float)angleToNorth, 0);
         }
 
 
