@@ -41,6 +41,7 @@ namespace DoubleComputation
         public static double Deg2Rad = PI/180.0;
         public static double Rad2Deg = 180/PI;
 
+        //below not needed, use lib Math for computation
         /*
         public static double Sin(double radius){
         }
