@@ -76,10 +76,10 @@ public class Locate : MonoBehaviour
         //hardcode Latitude, Longtitude, Height
         gps_tiger[5] = new Vector3d(22.337750368767, 114.2630499323, 0); //piazza
         gps_tiger[0] = new Vector3d(22.3378280163879, 114.264188693905, 0); //green field next to LG7
-        gps_tiger[2] = new Vector3d(22.3336070432467, 114.263200065615, 0); //shaw building
+        gps_tiger[2] = new Vector3d(22.3342813193285, 114.263975777545, 0); //shaw building
         gps_tiger[4] = new Vector3d(1, 1, 1); //north gate
         gps_tiger[7] = new Vector3d(22.337805342394, 114.268795309812, 0); //beach promenade
-        gps_tiger[1] = new Vector3d(22.3334290432487, 114.26478407823, 0); //business building entrance
+        gps_tiger[1] = new Vector3d(22.3335102992291, 114.264752715932, 0); //business building entrance
         gps_tiger[3] = new Vector3d(22.3361895084094, 114.26409054065, 0); //lovers' walk
         gps_tiger[6] = new Vector3d(22.3370086564405, 114.266969178984, 0); //pond behind hall4
         gps_tiger[8] = new Vector3d(1, 1, 1); //bridge link
@@ -111,6 +111,7 @@ public class Locate : MonoBehaviour
             _log.text += "distance: "+ dist.ToString()+ "\n";
         }
         else{
+            model_num = 8; //avoid array out of bounds
             _log.text += "distance: closest distance bigger than 25m"+ "\n";
         }
         _log.text += "rotation degree: "+ rotation_degree.ToString()+ "\n";
@@ -127,12 +128,18 @@ public class Locate : MonoBehaviour
             tigers[model_num].GetComponent<Renderer>().enabled = true;
             //rotation and translation
             _gameObject1.transform.rotation = Quaternion.Euler(0, (float)rotation_degree, 0);
-            double delta_dist = dist - tigers[model_num].transform.position.z;
-            tigers[model_num].transform.Translate(0.0f, 0.0f, (float)delta_dist, Space.Self);
-            tigers[model_num].transform.Rotate(0, -(float)angleToNorth, 0);
+            tigers[model_num].transform.localPosition = new Vector3(0.0f, 0.0f, (float)dist);
+
+            //rotation bias for each model to face forward, as the original model itself heads in different direction
+            float rotation_bias;
+            if(model_num == 5){
+                rotation_bias = 270;
+            }
+            else{
+                rotation_bias = 90;
+            }
+            tigers[model_num].transform.localRotation = Quaternion.Euler(0, - (float)bearing + rotation_bias, 0);
         }
-
-
 
         arSessionOrigin.transform.position = origin_position;
         arSessionOrigin.transform.rotation = origin_rotation;

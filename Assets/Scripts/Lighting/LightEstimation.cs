@@ -1,56 +1,76 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 
 public class LightEstimation : MonoBehaviour
 {
-    private ARCameraManager m_CameraManager;
-    private Light m_Light;
+    [SerializeField]
+    private ARCameraManager arCameraManager;
 
-    private void Awake()
+    private Light currentLight;
+
+    void Awake ()
     {
-        m_CameraManager = FindObjectOfType<ARCameraManager>();
-        if(m_CameraManager==null)
-        {
-            Debug.LogError(GetType() + "/Awake()/ ARCameraManager is null!");
-        }
-
-        m_Light = GetComponent<Light>();
+        currentLight = GetComponent<Light>();
     }
 
     private void OnEnable()
     {
-        if (m_CameraManager != null)
-        {
-            m_CameraManager.frameReceived += OnFrameChanged;
-        }
+        arCameraManager.frameReceived += FrameUpdated;
     }
 
     private void OnDisable()
     {
-        if (m_CameraManager != null)
-        {
-            m_CameraManager.frameReceived -= OnFrameChanged;
-        }
+        arCameraManager.frameReceived -= FrameUpdated;
     }
 
-    private void OnFrameChanged(ARCameraFrameEventArgs args)
+    private void FrameUpdated(ARCameraFrameEventArgs args)
     {
         if (args.lightEstimation.averageBrightness.HasValue)
         {
-            m_Light.intensity = args.lightEstimation.averageBrightness.Value;
+            currentLight.intensity = args.lightEstimation.averageBrightness.Value;
         }
 
+//not supported by ARkit in the world tracking mode
+/*
         if (args.lightEstimation.averageColorTemperature.HasValue)
         {
-            m_Light.colorTemperature = args.lightEstimation.averageColorTemperature.Value;
+            currentLight.colorTemperature = args.lightEstimation.averageColorTemperature.Value;
         }
 
         if (args.lightEstimation.colorCorrection.HasValue)
         {
-            m_Light.color = args.lightEstimation.colorCorrection.Value;
+            currentLight.color = args.lightEstimation.colorCorrection.Value;
         }
+
+        if (args.lightEstimation.mainLightDirection.HasValue)
+        {
+            mainLightDirectionValue.text = $"Direction: {args.lightEstimation.mainLightDirection.Value}";
+            currentLight.transform.rotation = Quaternion.LookRotation(args.lightEstimation.mainLightDirection.Value);
+        }
+
+        if (args.lightEstimation.mainLightColor.HasValue)
+        {
+            mainLightColorValue.text = $"Main light color: {args.lightEstimation.mainLightColor.Value}";
+            currentLight.color = args.lightEstimation.mainLightColor.Value;                   //here
+        }
+
+        if (args.lightEstimation.mainLightIntensityLumens.HasValue)
+        {
+            mainLightIntensityValue.text = $"Main light intensity: {args.lightEstimation.mainLightIntensityLumens.Value}";
+            currentLight.intensity = args.lightEstimation.mainLightIntensityLumens.Value;
+        }
+
+
+        if (args.lightEstimation.ambientSphericalHarmonics.HasValue)
+        {
+            sphericalHarmonicsValue = args.lightEstimation.ambientSphericalHarmonics;
+            RenderSettings.ambientMode = AmbientMode.Skybox;
+            RenderSettings.ambientProbe = sphericalHarmonics.Value;
+        }
+*/
+
     }
+
 }
 

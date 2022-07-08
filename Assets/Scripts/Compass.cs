@@ -6,25 +6,34 @@ using UnityEngine.UI;
 public class Compass : MonoBehaviour
 {
     private Gyroscope _gyro;
-    public float _deltaAngle;
     public float angleToNorth;
+    private float originalAngle;
+    private bool angleGet = false;
 
     private void Start()
     {
         //Set up and enable the gyroscope (check your device has one)
         _gyro = Input.gyro;
         _gyro.enabled = true;
+        Input.location.Start();
+        Input.compass.enabled = true;
     }
 
     private void Update()
     {
+        float tHeading = Input.compass.trueHeading;
+        if((tHeading != 0) && (angleGet == false)){
+            originalAngle = tHeading;
+            angleGet = true;
+        }
+
         Vector3 previousAngles = transform.eulerAngles;
         transform.localRotation = Input.gyro.attitude;
         transform.Rotate(0f, 0f, 180f, Space.Self); // Swap "handedness" of quaternion from gyro.
         transform.Rotate(90f, 180f, 0f, Space.World); // Rotate to make sense as a camera pointing out the back of your device.
         // We now have the angle of the camera to the north as transform.eulerAngles.y
 
-        angleToNorth = transform.eulerAngles.y;
+        angleToNorth = (transform.eulerAngles.y + originalAngle) % 360;
         GameObject.Find("GameObject").GetComponent<Locate>().SendMessage("setAngleToNorth", (double)angleToNorth);
 
         //float deltaAngle2 = Mathf.DeltaAngle(_camera.transform.eulerAngles.y, transform.eulerAngles.y);//%_target.transform.eulerAngles.y);
