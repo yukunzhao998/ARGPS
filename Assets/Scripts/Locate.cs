@@ -75,14 +75,14 @@ public class Locate : MonoBehaviour
 
         //hardcode Latitude, Longtitude, Height
         gps_tiger[5] = new Vector3d(22.337750368767, 114.2630499323, 0); //piazza
-        gps_tiger[0] = new Vector3d(22.3378280163879, 114.264188693905, 0); //green field next to LG7
-        gps_tiger[2] = new Vector3d(22.3342813193285, 114.263975777545, 0); //shaw building
-        gps_tiger[4] = new Vector3d(1, 1, 1); //north gate
+        gps_tiger[0] = new Vector3d(22.3377718, 114.2643658, 0); //green field next to LG7
+        gps_tiger[2] = new Vector3d(22.3342641763769, 114.2636490802, 0); //shaw building
+        gps_tiger[4] = new Vector3d(22.3384411, 114.2623102, 0); //north gate
         gps_tiger[7] = new Vector3d(22.337805342394, 114.268795309812, 0); //beach promenade
         gps_tiger[1] = new Vector3d(22.3335102992291, 114.264752715932, 0); //business building entrance
-        gps_tiger[3] = new Vector3d(22.3361895084094, 114.26409054065, 0); //lovers' walk
-        gps_tiger[6] = new Vector3d(22.3370086564405, 114.266969178984, 0); //pond behind hall4
-        gps_tiger[8] = new Vector3d(1, 1, 1); //bridge link
+        gps_tiger[3] = new Vector3d(22.3371832, 114.2647986, 0); //lovers' walk
+        gps_tiger[6] = new Vector3d(22.3370043, 114.2670028, 0); //pond behind hall4
+        gps_tiger[8] = new Vector3d(22.3374853, 114.2655530, 0); //bridge link
     
         _gameObject1.SetActive(false);
     }
@@ -92,7 +92,7 @@ public class Locate : MonoBehaviour
         //computation for bearing and distance
         for(model_num=0; model_num<9; model_num++){
             dist = getDistance(gps_device, gps_tiger[model_num]);
-            if (dist < 25){
+            if (dist < 50){
                 bearing = getBearing(gps_device, gps_tiger[model_num]);
                 rotation_degree = (bearing - angleToNorth) % 360;
                 if (rotation_degree < 0){
@@ -107,12 +107,12 @@ public class Locate : MonoBehaviour
         _log.text += "angle to north: "+ angleToNorth.ToString()+ "\n";
         _log.text += "latitude: "+ gps_device.x.ToString()+ " lontitude: "+ gps_device.y.ToString()+ "\n";
         _log.text += "accuracy: "+ gps_accuracy.ToString()+ "\n";
-        if(dist < 25){
+        if(dist < 50){
             _log.text += "distance: "+ dist.ToString()+ "\n";
         }
         else{
             model_num = 8; //avoid array out of bounds
-            _log.text += "distance: closest distance bigger than 25m"+ "\n";
+            _log.text += "distance: closest distance bigger than 50m"+ "\n";
         }
         _log.text += "rotation degree: "+ rotation_degree.ToString()+ "\n";
     }
@@ -122,9 +122,11 @@ public class Locate : MonoBehaviour
         _gameObject1.SetActive(true);
         GameObject[] tigers = {_tiger1, _tiger2, _tiger3, _tiger4, _tiger5, _tiger6, _tiger7, _tiger8, _tiger9};
         for(int i=0; i<9; i++){
-            tigers[i].GetComponent<Renderer>().enabled = false;
+            tigers[i].SetActive(false);
+            //tigers[i].GetComponent<Renderer>().enabled = false;
         }
         if(dist < 25){
+            tigers[model_num].SetActive(true);
             tigers[model_num].GetComponent<Renderer>().enabled = true;
             //rotation and translation
             _gameObject1.transform.rotation = Quaternion.Euler(0, (float)rotation_degree, 0);
